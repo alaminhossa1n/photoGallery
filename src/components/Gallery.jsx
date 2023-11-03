@@ -1,4 +1,9 @@
 import { useState } from "react";
+import { useDrag, useDrop } from "react-dnd";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+import { MdCheckBox, MdCheckBoxOutlineBlank } from "react-icons/md";
+
 import image1 from "../assets/images/image-1.webp";
 import image2 from "../assets/images/image-2.webp";
 import image3 from "../assets/images/image-3.webp";
@@ -40,6 +45,12 @@ const Gallery = () => {
         }
     };
 
+    const handleDeleteSelected = () => {
+        const updatedImages = images.filter((image) => !selectedImages.includes(image));
+        setImages(updatedImages);
+        setSelectedImages([]);
+    };
+
     const handleReorder = (dragIndex, dropIndex) => {
         const updatedImages = [...images];
         const [draggedImage] = updatedImages.splice(dragIndex, 1);
@@ -47,46 +58,69 @@ const Gallery = () => {
         setImages(updatedImages);
     };
 
-    const handleDeleteSelected = () => {
-        const updatedImages = images.filter(
-            (image) => !selectedImages.includes(image)
-        );
-        setImages(updatedImages);
-        setSelectedImages([]);
-    };
+    return (
+        <DndProvider backend={HTML5Backend}>
+            <div className="p-4 space-y-4 w-1/2 mx-auto">
+                <div className={`flex items-center justify-between ${selectedImages.length > 0 ? '' : 'invisible'}`}>
+                    <div className={`flex items-center gap-1`}>
+                        <MdCheckBox></MdCheckBox>
+                        <p> {selectedImages.length} <span>{selectedImages.length > 1 && selectedImages != 0 ? "Flies" : "File"}</span> Selected</p>
+                    </div>
+                    <button
+                        onClick={handleDeleteSelected}
+                        className="bg-red-500 text-white p-2 rounded"
+                    >
+                        Delete Selected
+                    </button>
+                </div>
+  
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                    {images.map((image, index) => (
+                        <DraggableImage
+                            key={image.id}
+                            image={image}
+                            index={index}
+                            handleImageClick={handleImageClick}
+                            selectedImages={selectedImages}
+                            handleReorder={handleReorder}
+                        />
+                    ))}
+                </div>
+            </div>
+        </DndProvider>
+    );
+};
+
+const DraggableImage = ({ image, index, handleImageClick, selectedImages, handleReorder }) => {
+    const [, ref] = useDrag({
+        type: "IMAGE",
+        item: { index },
+    });
+
+    const [, drop] = useDrop({
+        accept: "IMAGE",
+        hover: (draggedItem) => {
+            if (draggedItem.index !== index) {
+                handleReorder(draggedItem.index, index);
+                draggedItem.index = index;
+            }
+        },
+    });
 
     return (
-        <div className="p-4 space-y-4 w-1/2 mx-auto">
-            <button
-                onClick={handleDeleteSelected}
-                className="bg-red-500 text-white p-2 rounded"
-            >
-                Delete Selected
-            </button>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-      {images.map((image, index) => (
         <div
-          key={image.id}
-          className={`bg-white border rounded shadow p-2 cursor-pointer transition-transform hover:transform hover:scale-95 ${selectedImages.includes(image) ? "border-blue-500" : ""} ${index === 0 ? "col-span-2 row-span-2" : ""}`}
-          draggable="true"
-          onDragStart={(e) => e.dataTransfer.setData("text/plain", index)}
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={(e) => {
-            const dragIndex = parseInt(e.dataTransfer.getData("text/plain"));
-            handleReorder(dragIndex, index);
-          }}
-        >
-          <img
-            src={image.src}
-            alt={`Image ${image.id}`}
-            className="w-full h-auto"
-            onClick={() => handleImageClick(image)}
-          />
-        </div>
-      ))}
-    </div>
+            ref={(node) => {
+                ref(drop(node));
+            }}
+            className={`bg-white border rounded shadow p-2 cursor-pointer hover:transform hover:scale-90 transition-transform duration-500 ${selectedImages.includes(image) ? "border-blue-500" : ""} ${index === 0 ? "col-span-2 row-span-2" : ""}`}
 
+        >
+            <img
+                src={image.src}
+                alt={`Image ${image.id}`}
+                className="w-full h-auto"
+                onClick={() => handleImageClick(image)}
+            />
         </div>
     );
 };
