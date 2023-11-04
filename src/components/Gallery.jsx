@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { useDrag, useDrop } from "react-dnd";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { MdCheckBox, MdCheckBoxOutlineBlank } from "react-icons/md";
+import { MdCheckBox } from "react-icons/md";
+import { FaRegImage } from "react-icons/fa";
 
 import image1 from "../assets/images/image-1.webp";
 import image2 from "../assets/images/image-2.webp";
@@ -15,6 +15,7 @@ import image8 from "../assets/images/image-8.webp";
 import image9 from "../assets/images/image-9.webp";
 import image10 from "../assets/images/image-10.jpeg";
 import image11 from "../assets/images/image-11.jpeg";
+import DraggableImage from "./DraggableImage";
 
 const Gallery = () => {
     const initialImages = [
@@ -35,6 +36,7 @@ const Gallery = () => {
     const [selectedImages, setSelectedImages] = useState([]);
 
     const handleImageClick = (image) => {
+
         const index = selectedImages.indexOf(image);
         if (index === -1) {
             setSelectedImages([...selectedImages, image]);
@@ -60,20 +62,20 @@ const Gallery = () => {
 
     return (
         <DndProvider backend={HTML5Backend}>
-            <div className="p-4 space-y-4 w-1/2 mx-auto">
+            <div className="p-4 space-y-4 w-3/4 mx-auto">
                 <div className={`flex items-center justify-between ${selectedImages.length > 0 ? '' : 'invisible'}`}>
                     <div className={`flex items-center gap-1`}>
-                        <MdCheckBox></MdCheckBox>
-                        <p> {selectedImages.length} <span>{selectedImages.length > 1 && selectedImages != 0 ? "Flies" : "File"}</span> Selected</p>
+                        <MdCheckBox className="text-blue-500 text-lg"></MdCheckBox>
+                        <p className="text-lg font-semibold"> {selectedImages.length} <span>{selectedImages.length > 1 && selectedImages != 0 ? "Flies" : "File"}</span> Selected</p>
                     </div>
                     <button
                         onClick={handleDeleteSelected}
                         className="bg-red-500 text-white p-2 rounded"
                     >
-                        Delete Selected
+                        <p>Delete <span>{selectedImages.length > 1 && selectedImages != 0 ? "Flies" : "File"}</span></p>
                     </button>
                 </div>
-  
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                     {images.map((image, index) => (
                         <DraggableImage
@@ -85,44 +87,19 @@ const Gallery = () => {
                             handleReorder={handleReorder}
                         />
                     ))}
+
+                    <div className="h-full w-full border-dashed border-2 flex items-center justify-center">
+                        <div className="flex flex-col items-center justify-center gap-2">
+                            <FaRegImage className="text-3xl text-gray-500"></FaRegImage>
+                            <p className="text-gray-500">Add Images</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </DndProvider>
     );
 };
 
-const DraggableImage = ({ image, index, handleImageClick, selectedImages, handleReorder }) => {
-    const [, ref] = useDrag({
-        type: "IMAGE",
-        item: { index },
-    });
 
-    const [, drop] = useDrop({
-        accept: "IMAGE",
-        hover: (draggedItem) => {
-            if (draggedItem.index !== index) {
-                handleReorder(draggedItem.index, index);
-                draggedItem.index = index;
-            }
-        },
-    });
-
-    return (
-        <div
-            ref={(node) => {
-                ref(drop(node));
-            }}
-            className={`bg-white border rounded shadow p-2 cursor-pointer hover:transform hover:scale-90 transition-transform duration-500 ${selectedImages.includes(image) ? "border-blue-500" : ""} ${index === 0 ? "col-span-2 row-span-2" : ""}`}
-
-        >
-            <img
-                src={image.src}
-                alt={`Image ${image.id}`}
-                className="w-full h-auto"
-                onClick={() => handleImageClick(image)}
-            />
-        </div>
-    );
-};
 
 export default Gallery;
