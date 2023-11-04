@@ -2,7 +2,7 @@ Creating a GitHub README for your project is a crucial step to provide an overvi
 
 # Gallery App with Drag-and-Drop Image Management
 
-![Gallery App Screenshot](./screenshot.png)
+![Gallery App Screenshot](./public/screenshot.png)
 
 This is a web application built with React that allows users to manage and organize images using drag-and-drop functionality. It is an ideal solution for tasks such as image selection, reordering, and deletion in a user-friendly and intuitive manner.
 
@@ -40,7 +40,7 @@ This is a web application built with React that allows users to manage and organ
    npm start
    ```
 
-5. Open your browser and access the application at [http://localhost:3000](http://localhost:3000).
+5. Open your browser and access the application at [Photo Gallery](https://jade-shortbread-0bba9f.netlify.app/).
 
 ## Usage
 
